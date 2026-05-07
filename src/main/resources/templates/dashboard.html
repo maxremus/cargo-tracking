@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<head>
+    <title>Dashboard</title>
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #0f4c75, #16213e);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(15, 52, 96, 0.3);
+        }
+
+        .dashboard-header h1 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-header p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-card-enhanced {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            border-left: 5px solid #0f4c75;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-card-enhanced:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -50px;
+            width: 100px;
+            height: 100%;
+            background: rgba(15, 76, 117, 0.05);
+            border-radius: 50%;
+        }
+
+        .stat-card-enhanced:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card-enhanced.delivered {
+            border-left-color: #27ae60;
+        }
+
+        .stat-card-enhanced.pending {
+            border-left-color: #f39c12;
+        }
+
+        .stat-card-enhanced .stat-value-large {
+            font-size: 40px;
+            font-weight: 700;
+            color: #0f4c75;
+        }
+
+        .stat-card-enhanced.delivered .stat-value-large {
+            color: #27ae60;
+        }
+
+        .stat-card-enhanced.pending .stat-value-large {
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
+            <p>Преглед на системата и текущо состояние</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-container">
+            <div class="stat-card-enhanced">
+                <div class="stat-content">
+                    <h3>Всички Товари</h3>
+                    <div class="stat-value-large" th:text="${loads.size()}">0</div>
+                </div>
+                <div class="stat-icon loads"><i class="fas fa-boxes"></i></div>
+            </div>
+            <div class="stat-card-enhanced delivered">
+                <div class="stat-content">
+                    <h3>Доставени</h3>
+                    <div class="stat-value-large">✓</div>
+                </div>
+                <div class="stat-icon delivered"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="stat-card-enhanced pending">
+                <div class="stat-content">
+                    <h3>Камиони</h3>
+                    <div class="stat-value-large" th:text="${trucks?.size() ?: 0}">0</div>
+                </div>
+                <div class="stat-icon pending"><i class="fas fa-truck"></i></div>
+            </div>
+        </div>
+
+        <!-- RECENT LOADS -->
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #0f4c75, #16213e); color: white; display: flex; justify-content: space-between; align-items: center;">
+                <h5 style="margin: 0; color: white;"><i class="fas fa-history"></i> Последни Товари</h5>
+                <a href="/loads" class="btn btn-light btn-sm">
+                    <i class="fas fa-eye"></i> Виж Всички
+                </a>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(loads)}" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Няма регистрирани товари. <a href="/loads/create">Добави нов товар</a>
+                </div>
+                <table class="table table-striped" th:if="${not #lists.isEmpty(loads)}">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Продукт</th>
+                            <th>Количество</th>
+                            <th>Камион</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="load : ${loads.stream().limit(5).toList()}">
+                            <td th:text="${load.id}"></td>
+                            <td th:text="${load.productName}"></td>
+                            <td th:text="${load.quantity}"></td>
+                            <td th:text="${load.truck?.truckNumber ?: 'N/A'}"></td>
+                            <td>
+                                <span th:class="'badge status-' + ${load.status?.name()?.toLowerCase()}"
+                                      th:text="${load.status}">
+                                </span>
+                            </td>
+                            <td th:text="${#temporals.format(load.loadingDate, 'dd.MM.yyyy HH:mm')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

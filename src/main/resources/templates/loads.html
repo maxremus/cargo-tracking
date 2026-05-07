@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<head>
+    <title>Товари</title>
+    <style>
+        .loads-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header-enhanced {
+            flex: 1;
+        }
+
+        .loads-header .btn {
+            margin-left: 20px;
+        }
+
+        .load-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid #0f4c75;
+        }
+
+        .load-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .load-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .load-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .load-field-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .load-field-value {
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .load-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin: 0 15px;
+        }
+
+        .load-actions {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="loads-header">
+            <div class="page-header-enhanced">
+                <h1><i class="fas fa-boxes"></i> Управление на Товарите</h1>
+                <p class="text-muted">Всички регистрирани товари и тяхния статус</p>
+            </div>
+            <a href="/loads/create" class="btn btn-success" style="padding: 12px 24px; font-size: 15px;">
+                <i class="fas fa-plus-circle"></i> Добави Товар
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #0f4c75, #16213e); color: white;">
+                <h5 style="margin: 0; color: white;"><i class="fas fa-list"></i> Списък на Товарите</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(loads)}" class="alert alert-info" style="border-left: 4px solid #0f4c75;">
+                    <i class="fas fa-info-circle"></i> Няма регистрирани товари. <a href="/loads/create">Добави нов товар</a>
+                </div>
+
+                <div th:if="${not #lists.isEmpty(loads)}">
+                    <div th:each="load : ${loads}" class="load-item">
+                        <div class="load-content">
+                            <div class="load-field">
+                                <span class="load-field-label">ID</span>
+                                <span class="load-field-value" th:text="${load.id}"></span>
+                            </div>
+                            <div class="load-field">
+                                <span class="load-field-label">Продукт</span>
+                                <span class="load-field-value" th:text="${load.productName}"></span>
+                            </div>
+                            <div class="load-field">
+                                <span class="load-field-label">Количество</span>
+                                <span class="load-field-value" th:text="${load.quantity}"></span>
+                            </div>
+                            <div class="load-field">
+                                <span class="load-field-label">Камион</span>
+                                <span class="load-field-value" th:text="${load.truck?.truckNumber ?: 'N/A'}"></span>
+                            </div>
+                            <div class="load-field">
+                                <span class="load-field-label">Статус</span>
+                                <span th:class="'badge status-' + ${load.status?.name()?.toLowerCase()}"
+                                      th:text="${load.status}">
+                                </span>
+                            </div>
+                            <div class="load-field">
+                                <span class="load-field-label">Дата</span>
+                                <span class="load-field-value" th:text="${#temporals.format(load.loadingDate, 'dd.MM.yyyy HH:mm')}"></span>
+                            </div>
+                        </div>
+
+                        <img th:if="${load.imagePath != null}"
+                             th:src="@{'/uploads/' + ${load.imagePath}}"
+                             alt="Товар"
+                             class="load-image">
+
+                        <div class="load-actions">
+                            <a th:href="@{/loads/edit/{id}(id=${load.id})}"
+                               class="btn btn-warning btn-sm" style="padding: 8px 12px;">
+                                <i class="fas fa-edit"></i> Редактирай
+                            </a>
+                            <a th:href="@{/loads/delete/{id}(id=${load.id})}"
+                               class="btn btn-danger btn-sm" style="padding: 8px 12px;"
+                               onclick="return confirm('Сигурен ли си, че искаш да изтриеш този товар?')">
+                                <i class="fas fa-trash"></i> Изтрий
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
