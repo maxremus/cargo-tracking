@@ -1,14 +1,16 @@
 package org.example.cargotracking.service;
 
+import org.example.cargotracking.dto.LoadSearchDTO;
 import org.example.cargotracking.entity.LoadRecord;
 import org.example.cargotracking.entity.LoadStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface LoadRecordService {
 
-    LoadRecord save(LoadRecord loadRecord);
 
     List<LoadRecord> findAll();
 
@@ -18,5 +20,12 @@ public interface LoadRecordService {
 
     List<LoadRecord> findByStatus(LoadStatus status);
 
-    LoadRecord saveLoad(LoadRecord loadRecord, MultipartFile image) throws Exception;
+    void saveLoad(LoadRecord loadRecord,
+                  MultipartFile image,
+                  MultipartFile document) throws Exception;
+
+    Page<LoadRecord> searchLoads(
+            LoadSearchDTO search,
+            Pageable pageable
+    );
 }

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="bg"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+
+    <title>Системни Логове</title>
+
+    <style>
+
+        .logs-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+        }
+
+        .log-card{
+            background:white;
+            border-radius:12px;
+            padding:20px;
+            margin-bottom:15px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+            border-left:5px solid #0f4c75;
+        }
+
+        .log-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:15px;
+            flex-wrap:wrap;
+            gap:10px;
+        }
+
+        .log-user{
+            font-size:18px;
+            font-weight:bold;
+            color:#0f4c75;
+        }
+
+        .log-action{
+            background:#0f4c75;
+            color:white;
+            padding:5px 12px;
+            border-radius:20px;
+            font-size:13px;
+            font-weight:600;
+        }
+
+        .log-details{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+            gap:15px;
+        }
+
+        .log-field{
+            display:flex;
+            flex-direction:column;
+        }
+
+        .log-label{
+            font-size:12px;
+            color:#888;
+            margin-bottom:5px;
+            font-weight:bold;
+        }
+
+        .log-value{
+            font-size:15px;
+            color:#2c3e50;
+            font-weight:600;
+            word-break:break-word;
+        }
+
+        .empty-box{
+            background:white;
+            border-radius:12px;
+            padding:40px;
+            text-align:center;
+            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        @media(max-width:768px){
+
+            .logs-header{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:15px;
+            }
+
+            .log-top{
+                flex-direction:column;
+                align-items:flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="logs-header">
+
+        <div>
+
+            <h1>
+
+                <i class="fas fa-clipboard-list"></i>
+
+                Системни Логове
+
+            </h1>
+
+            <p class="text-muted">
+
+                История на действията в системата
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <div th:if="${#lists.isEmpty(logs)}"
+         class="empty-box">
+
+        <h4>
+
+            Няма записани логове
+
+        </h4>
+
+    </div>
+
+    <div th:each="log : ${logs}"
+         class="log-card">
+
+        <div class="log-top">
+
+            <div class="log-user"
+                 th:text="${log.username}">
+            </div>
+
+            <div class="log-action"
+                 th:text="${log.action}">
+            </div>
+
+        </div>
+
+        <div class="log-details">
+
+            <div class="log-field">
+
+                <span class="log-label">
+
+                    Описание
+
+                </span>
+
+                <span class="log-value"
+                      th:text="${log.details}">
+                </span>
+
+            </div>
+
+            <div class="log-field">
+
+                <span class="log-label">
+
+                    IP Адрес
+
+                </span>
+
+                <span class="log-value"
+                      th:text="${log.ipAddress}">
+                </span>
+
+            </div>
+
+            <div class="log-field">
+
+                <span class="log-label">
+
+                    Дата и Час
+
+                </span>
+
+                <span class="log-value"
+                      th:text="${#temporals.format(log.createdAt, 'dd.MM.yyyy HH:mm:ss')}">
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

@@ -16,11 +16,68 @@ public class TruckServiceImpl implements TruckService {
 
     @Override
     public Truck save(Truck truck) {
-        return truckRepository.save(truck);
+
+        // CREATE
+
+        if (truck.getId() == null) {
+
+            boolean exists = truckRepository
+                    .findAll()
+                    .stream()
+                    .anyMatch(t ->
+
+                            t.getTruckNumber()
+                                    .equalsIgnoreCase(
+                                            truck.getTruckNumber()
+                                    )
+                    );
+
+            if (exists) {
+
+                throw new RuntimeException(
+                        "Truck number already exists"
+                );
+            }
+
+            return truckRepository.save(truck);
+        }
+
+        // UPDATE
+
+        Truck existingTruck =
+                truckRepository.findById(
+                        truck.getId()
+                ).orElseThrow(() ->
+
+                        new RuntimeException(
+                                "Truck not found"
+                        )
+                );
+
+        existingTruck.setTruckNumber(
+                truck.getTruckNumber()
+        );
+
+        existingTruck.setDriverName(
+                truck.getDriverName()
+        );
+
+        existingTruck.setModel(
+                truck.getModel()
+        );
+
+        existingTruck.setCompanyName(
+                truck.getCompanyName()
+        );
+
+        return truckRepository.save(
+                existingTruck
+        );
     }
 
     @Override
     public List<Truck> findAll() {
+
         return truckRepository.findAll();
     }
 
@@ -28,11 +85,28 @@ public class TruckServiceImpl implements TruckService {
     public Truck findById(Long id) {
 
         return truckRepository.findById(id)
-                .orElse(null);
+
+                .orElseThrow(() ->
+
+                        new RuntimeException(
+                                "Truck not found"
+                        )
+                );
     }
 
     @Override
     public void delete(Long id) {
-        truckRepository.deleteById(id);
+
+        Truck truck =
+                truckRepository.findById(id)
+
+                        .orElseThrow(() ->
+
+                                new RuntimeException(
+                                        "Truck not found"
+                                )
+                        );
+
+        truckRepository.delete(truck);
     }
 }

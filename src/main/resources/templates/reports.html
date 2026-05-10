@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="bg"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+
+    <title>
+        Справки
+    </title>
+
+    <style>
+
+        .page-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+
+        .stats-card{
+            border:none;
+            border-radius:18px;
+            overflow:hidden;
+            box-shadow:0 4px 14px rgba(0,0,0,0.08);
+            transition:0.3s;
+            height:100%;
+        }
+
+        .stats-card:hover{
+            transform:translateY(-4px);
+        }
+
+        .stats-card .card-body{
+            padding:25px;
+        }
+
+        .stats-icon{
+            width:60px;
+            height:60px;
+            border-radius:15px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:24px;
+            color:white;
+            margin-bottom:15px;
+        }
+
+        .icon-dark{
+            background:linear-gradient(135deg,#16213e,#0f3460);
+        }
+
+        .icon-primary{
+            background:linear-gradient(135deg,#0d6efd,#0f4c75);
+        }
+
+        .icon-success{
+            background:linear-gradient(135deg,#198754,#20c997);
+        }
+
+        .stats-title{
+            color:#777;
+            font-size:14px;
+            margin-bottom:8px;
+        }
+
+        .stats-value{
+            font-size:34px;
+            font-weight:700;
+            color:#2c3e50;
+        }
+
+        .report-card{
+            border:none;
+            border-radius:18px;
+            overflow:hidden;
+            box-shadow:0 4px 14px rgba(0,0,0,0.08);
+            height:100%;
+        }
+
+        .report-card .card-header{
+            padding:18px 22px;
+            border:none;
+        }
+
+        .table{
+            margin-bottom:0;
+        }
+
+        .table thead th{
+            border:none;
+            font-size:13px;
+            text-transform:uppercase;
+            color:#6c757d;
+            letter-spacing:0.5px;
+        }
+
+        .table tbody tr{
+            transition:0.2s;
+        }
+
+        .table tbody tr:hover{
+            background:#f8f9fa;
+        }
+
+        .badge-modern{
+            border-radius:10px;
+            padding:8px 12px;
+            font-size:13px;
+            font-weight:600;
+        }
+
+        .empty-box{
+            padding:35px;
+            text-align:center;
+            color:#888;
+        }
+
+        .empty-box i{
+            font-size:40px;
+            margin-bottom:15px;
+            opacity:0.6;
+        }
+
+        .daily-card{
+            margin-top:10px;
+        }
+
+        @media(max-width:768px){
+
+            .page-header{
+                flex-direction:column;
+                align-items:flex-start;
+            }
+
+            .stats-value{
+                font-size:28px;
+            }
+
+            .table-responsive{
+                font-size:14px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<section layout:fragment="content">
+
+    <div class="container-fluid">
+
+        <!-- HEADER -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h2 class="fw-bold mb-1">
+
+                    <i class="fas fa-chart-line"></i>
+                    Административни справки
+
+                </h2>
+
+                <p class="text-muted mb-0">
+
+                    Статистика и анализ на товарите
+
+                </p>
+
+            </div>
+
+            <a th:href="@{/dashboard}"
+               class="btn btn-dark">
+
+                <i class="fas fa-arrow-left"></i>
+                Назад
+
+            </a>
+
+        </div>
+
+        <!-- TOP STATS -->
+
+        <div class="row g-4 mb-4">
+
+            <!-- LOADERS -->
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-dark">
+
+                            <i class="fas fa-users"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Общ брой товарачи
+
+                        </div>
+
+                        <div class="stats-value"
+                             th:text="${#lists.size(loaderStats)}">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- TRUCKS -->
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-primary">
+
+                            <i class="fas fa-truck"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Общ брой камиони
+
+                        </div>
+
+                        <div class="stats-value"
+                             th:text="${#lists.size(truckStats)}">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- DAILY -->
+
+            <div class="col-lg-4 col-md-12">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-success">
+
+                            <i class="fas fa-calendar"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Дневни записи
+
+                        </div>
+
+                        <div class="stats-value"
+                             th:text="${#lists.size(dailyStats)}">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TABLES -->
+
+        <div class="row g-4">
+
+            <!-- LOADERS TABLE -->
+
+            <div class="col-xl-6">
+
+                <div class="card report-card">
+
+                    <div class="card-header bg-dark text-white">
+
+                        <h5 class="mb-0">
+
+                            <i class="fas fa-user-check"></i>
+                            Най-активни товарачи
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body p-0">
+
+                        <div th:if="${#lists.isEmpty(loaderStats)}"
+                             class="empty-box">
+
+                            <i class="fas fa-box-open"></i>
+
+                            <p>
+                                Няма налични данни
+                            </p>
+
+                        </div>
+
+                        <div class="table-responsive"
+                             th:if="${!#lists.isEmpty(loaderStats)}">
+
+                            <table class="table table-hover align-middle">
+
+                                <thead>
+
+                                <tr>
+
+                                    <th class="ps-4">
+                                        Потребител
+                                    </th>
+
+                                    <th class="text-end pe-4">
+                                        Общо товари
+                                    </th>
+
+                                </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                <tr th:each="stat : ${loaderStats}">
+
+                                    <td class="ps-4 fw-semibold"
+                                        th:text="${stat.loader}">
+                                    </td>
+
+                                    <td class="text-end pe-4">
+
+                                        <span class="badge bg-dark badge-modern"
+                                              th:text="${stat.totalLoads}">
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- TRUCKS TABLE -->
+
+            <div class="col-xl-6">
+
+                <div class="card report-card">
+
+                    <div class="card-header bg-primary text-white">
+
+                        <h5 class="mb-0">
+
+                            <i class="fas fa-truck-loading"></i>
+                            Натоварване на камиони
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body p-0">
+
+                        <div th:if="${#lists.isEmpty(truckStats)}"
+                             class="empty-box">
+
+                            <i class="fas fa-truck"></i>
+
+                            <p>
+                                Няма налични данни
+                            </p>
+
+                        </div>
+
+                        <div class="table-responsive"
+                             th:if="${!#lists.isEmpty(truckStats)}">
+
+                            <table class="table table-hover align-middle">
+
+                                <thead>
+
+                                <tr>
+
+                                    <th class="ps-4">
+                                        Камион
+                                    </th>
+
+                                    <th class="text-end pe-4">
+                                        Общо товари
+                                    </th>
+
+                                </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                <tr th:each="stat : ${truckStats}">
+
+                                    <td class="ps-4 fw-semibold"
+                                        th:text="${stat.truck}">
+                                    </td>
+
+                                    <td class="text-end pe-4">
+
+                                        <span class="badge bg-primary badge-modern"
+                                              th:text="${stat.totalLoads}">
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- DAILY TABLE -->
+
+        <div class="card report-card daily-card mt-4">
+
+            <div class="card-header bg-success text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-calendar-days"></i>
+                    Дневни товари
+
+                </h5>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <div th:if="${#lists.isEmpty(dailyStats)}"
+                     class="empty-box">
+
+                    <i class="fas fa-chart-bar"></i>
+
+                    <p>
+                        Няма налични дневни записи
+                    </p>
+
+                </div>
+
+                <div class="table-responsive"
+                     th:if="${!#lists.isEmpty(dailyStats)}">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                        <tr>
+
+                            <th class="ps-4">
+                                Дата
+                            </th>
+
+                            <th class="text-end pe-4">
+                                Общо товари
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="stat : ${dailyStats}">
+
+                            <td class="ps-4 fw-semibold"
+                                th:text="${stat.date}">
+                            </td>
+
+                            <td class="text-end pe-4">
+
+                                <span class="badge bg-success badge-modern"
+                                      th:text="${stat.totalLoads}">
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</body>
+
+</html>

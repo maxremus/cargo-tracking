@@ -1,222 +1,356 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
 <head>
+
     <title>Добави Товар</title>
+
     <style>
+
         .form-card {
             background: white;
             border-radius: 10px;
             padding: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 700px;
             margin: 0 auto;
         }
 
         .form-card h1 {
             color: #0f4c75;
             margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #0f4c75;
         }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            color: #2c3e50;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-control, .form-select {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus, .form-select:focus {
-            background: white;
-            border-color: #0f4c75;
-            box-shadow: 0 0 0 3px rgba(15, 76, 117, 0.1);
-        }
-
         .form-actions {
             display: flex;
             gap: 10px;
             margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #e9ecef;
         }
 
-        .form-actions .btn {
-            flex: 1;
-            padding: 12px;
-            font-size: 15px;
+        .error-text {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
         }
 
-        .required-note {
-            color: #e74c3c;
-            margin-left: 5px;
+        .is-invalid {
+            border: 1px solid #dc3545 !important;
         }
 
-        .file-input-wrapper {
-            position: relative;
+        @media(max-width:768px){
+
+            .form-card{
+                padding:20px;
+            }
+
+            .form-actions{
+                flex-direction:column;
+            }
+
         }
 
-        .file-input-hint {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 12px;
-        }
     </style>
+
 </head>
+
 <body>
-    <div layout:fragment="content">
-        <div class="form-card">
-            <h1><i class="fas fa-plus-circle"></i> Добави Нов Товар</h1>
 
-            <form th:action="@{/loads/save}"
-                  method="post"
-                  enctype="multipart/form-data"
-                  th:object="${loadRecord}">
+<div layout:fragment="content">
 
-                <div class="form-group">
-                    <label for="productName">
-                        <i class="fas fa-box"></i>
-                        Продукт
-                        <span class="required-note">*</span>
-                    </label>
-                    <input type="text"
-                           id="productName"
-                           th:field="*{productName}"
-                           class="form-control"
-                           placeholder="Например: Стройматериали"
-                           required>
+    <div class="form-card">
+
+        <h1>
+            <i class="fas fa-plus-circle"></i>
+            Добави Нов Товар
+        </h1>
+
+        <form th:action="@{/loads/save}"
+              method="post"
+              enctype="multipart/form-data"
+              th:object="${loadRecord}">
+
+            <!-- PRODUCT -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Продукт
+                </label>
+
+                <input type="text"
+
+                       th:field="*{productName}"
+
+                       class="form-control"
+
+                       th:classappend="${#fields.hasErrors('productName')} ? 'is-invalid'"
+
+                       maxlength="100"
+
+                       required>
+
+                <div class="error-text"
+                     th:if="${#fields.hasErrors('productName')}"
+                     th:errors="*{productName}">
                 </div>
 
-                <div class="form-group">
-                    <label for="quantity">
-                        <i class="fas fa-cubes"></i>
-                        Количество
-                        <span class="required-note">*</span>
-                    </label>
-                    <input type="number"
-                           id="quantity"
-                           th:field="*{quantity}"
-                           class="form-control"
-                           placeholder="Количество"
-                           required>
+            </div>
+
+            <!-- QUANTITY -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Количество
+                </label>
+
+                <input type="number"
+
+                       th:field="*{quantity}"
+
+                       class="form-control"
+
+                       th:classappend="${#fields.hasErrors('quantity')} ? 'is-invalid'"
+
+                       min="1"
+
+                       max="1000000"
+
+                       required>
+
+                <div class="error-text"
+                     th:if="${#fields.hasErrors('quantity')}"
+                     th:errors="*{quantity}">
                 </div>
 
-                <div class="form-group">
-                    <label for="loadedBy">
-                        <i class="fas fa-user-hard-hat"></i>
-                        Зареден от
-                    </label>
-                    <input type="text"
-                           id="loadedBy"
-                           th:field="*{loadedBy}"
-                           class="form-control"
-                           placeholder="Име на складчика">
+            </div>
+
+            <!-- LOADED BY -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Натоварил
+                </label>
+
+                <input type="text"
+
+                       th:field="*{loadedBy}"
+
+                       class="form-control"
+
+                       th:classappend="${#fields.hasErrors('loadedBy')} ? 'is-invalid'"
+
+                       maxlength="100"
+
+                       required>
+
+                <div class="error-text"
+                     th:if="${#fields.hasErrors('loadedBy')}"
+                     th:errors="*{loadedBy}">
                 </div>
 
-                <div class="form-group">
-                    <label for="transportedBy">
-                        <i class="fas fa-id-card"></i>
-                        Превозван от
-                    </label>
-                    <input type="text"
-                           id="transportedBy"
-                           th:field="*{transportedBy}"
-                           class="form-control"
-                           placeholder="Име на шофьра">
+            </div>
+
+            <!-- TRANSPORTED BY -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Превозван от
+                </label>
+
+                <input type="text"
+
+                       th:field="*{transportedBy}"
+
+                       class="form-control"
+
+                       th:classappend="${#fields.hasErrors('transportedBy')} ? 'is-invalid'"
+
+                       maxlength="100"
+
+                       required>
+
+                <div class="error-text"
+                     th:if="${#fields.hasErrors('transportedBy')}"
+                     th:errors="*{transportedBy}">
                 </div>
 
-                <div class="form-group">
-                    <label for="truck">
-                        <i class="fas fa-truck"></i>
-                        Камион
-                        <span class="required-note">*</span>
-                    </label>
-                    <select id="truck"
-                            th:field="*{truck}"
-                            class="form-select"
-                            required>
-                        <option value="">-- Избери Камион --</option>
-                        <option th:each="truck : ${trucks}"
-                                th:value="${truck.id}"
-                                th:text="${truck.truckNumber + ' (' + truck.driverName + ')'}">
-                        </option>
-                    </select>
+            </div>
+
+            <!-- TRUCK -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Камион
+                </label>
+
+                <select th:field="*{truck}"
+
+                        class="form-select"
+
+                        th:classappend="${#fields.hasErrors('truck')} ? 'is-invalid'"
+
+                        required>
+
+                    <option value="">
+                        -- Избери Камион --
+                    </option>
+
+                    <option th:each="truck : ${trucks}"
+                            th:value="${truck.id}"
+                            th:text="${truck.truckNumber}">
+                    </option>
+
+                </select>
+
+                <div class="error-text"
+                     th:if="${#fields.hasErrors('truck')}"
+                     th:errors="*{truck}">
                 </div>
 
-                <div class="form-group">
-                    <label for="status">
-                        <i class="fas fa-tag"></i>
-                        Статус
-                        <span class="required-note">*</span>
-                    </label>
-                    <select id="status"
-                            th:field="*{status}"
-                            class="form-select"
-                            required>
-                        <option value="">-- Избери Статус --</option>
-                        <option th:each="status : ${statuses}"
-                                th:value="${status}"
-                                th:text="${status}">
-                        </option>
-                    </select>
+            </div>
+
+            <!-- STATUS -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Статус
+                </label>
+
+                <select th:field="*{status}"
+
+                        class="form-select"
+
+                        th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'"
+
+                        required>
+
+                    <option value="">
+                        -- Избери Статус --
+                    </option>
+
+                    <option th:each="status : ${statuses}"
+                            th:value="${status}"
+                            th:text="${status.displayName}">
+                    </option>
+
+                </select>
+
+                <div class="error-text"
+                     th:if="${#fields.hasErrors('status')}"
+                     th:errors="*{status}">
                 </div>
 
-                <div class="form-group">
-                    <label for="notes">
-                        <i class="fas fa-sticky-note"></i>
-                        Бележки
-                    </label>
-                    <textarea id="notes"
-                              th:field="*{notes}"
-                              class="form-control"
-                              placeholder="Допълнителни бележки"
-                              rows="4"
-                              style="resize: vertical;"></textarea>
-                </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="image">
-                        <i class="fas fa-image"></i>
-                        Снимка
-                    </label>
-                    <div class="file-input-wrapper">
-                        <input type="file"
-                               id="image"
-                               name="image"
-                               class="form-control"
-                               accept="image/*">
-                        <div class="file-input-hint">
-                            <i class="fas fa-info-circle"></i> Максимум: 10MB (JPG, PNG, GIF)
-                        </div>
-                    </div>
-                </div>
+            <!-- NOTES -->
 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-save"></i> Запази Товар
-                    </button>
-                    <a href="/loads" class="btn btn-secondary">
-                        <i class="fas fa-times-circle"></i> Отмени
-                    </a>
-                </div>
-            </form>
-        </div>
+            <div class="form-group">
+
+                <label class="form-label">
+                    Бележки
+                </label>
+
+                <textarea th:field="*{notes}"
+
+                          class="form-control"
+
+                          maxlength="2000"
+
+                          rows="4"></textarea>
+
+                <small class="text-muted">
+
+                    Максимум 2000 символа
+
+                </small>
+
+            </div>
+
+            <!-- IMAGE -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Снимка
+                </label>
+
+                <input type="file"
+                       name="image"
+                       class="form-control"
+                       accept="image/*">
+
+                <small class="text-muted">
+
+                    Позволени формати:
+                    JPG, PNG, WEBP
+                    | Максимум 10MB
+
+                </small>
+
+            </div>
+
+            <!-- DOCUMENT -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Складова Бележка
+                </label>
+
+                <input type="file"
+                       name="document"
+                       class="form-control"
+                       accept=".pdf,.doc,.docx,image/*">
+
+                <small class="text-muted">
+
+                    Позволени формати:
+                    PDF, DOC, DOCX
+                    | Максимум 10MB
+
+                </small>
+
+            </div>
+
+            <!-- ACTIONS -->
+
+            <div class="form-actions">
+
+                <button type="submit"
+                        class="btn btn-success"
+                        onclick="this.disabled=true;this.form.submit();">
+
+                    <i class="fas fa-save"></i>
+                    Запази
+
+                </button>
+
+                <a href="/loads"
+                   class="btn btn-secondary">
+
+                    Назад
+
+                </a>
+
+            </div>
+
+        </form>
+
     </div>
+
+</div>
+
 </body>
+
 </html>

@@ -11,4 +11,9 @@ public interface UserService {
     User findByUsername(String username);
 
     List<User> findAll();
+
+    void delete(Long id);
+
+    User findById(Long id);
+
 }
