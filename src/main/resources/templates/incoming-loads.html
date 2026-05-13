@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+
+    <title>
+        Входящи Товари
+    </title>
+
+    <style>
+
+        .search-buttons{
+            flex-direction:row-reverse;
+        }
+
+        .page-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:25px;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+
+        .incoming-card{
+            background:white;
+            border-radius:18px;
+            overflow:hidden;
+            box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .incoming-header{
+            background:linear-gradient(135deg,#0f4c75,#16213e);
+            color:white;
+            padding:20px 25px;
+        }
+
+        .table{
+            margin:0;
+        }
+
+        .table thead th{
+            background:#f8fafc;
+            color:#64748b;
+            border:none;
+            font-size:13px;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+            padding:16px;
+        }
+
+        .table tbody td{
+            vertical-align:middle;
+            padding:16px;
+            border-color:#f1f5f9;
+        }
+
+        .table tbody tr{
+            transition:0.2s;
+        }
+
+        .table tbody tr:hover{
+            background:#f8fafc;
+        }
+
+        .invoice-badge{
+            background:#e0f2fe;
+            color:#0369a1;
+            padding:6px 12px;
+            border-radius:10px;
+            font-size:13px;
+            font-weight:600;
+        }
+
+        .price-badge{
+            background:#dcfce7;
+            color:#166534;
+            padding:8px 14px;
+            border-radius:12px;
+            font-weight:700;
+            white-space:nowrap;
+        }
+
+        .product-name{
+            font-weight:600;
+            color:#1e293b;
+        }
+
+        .company-name{
+            font-weight:700;
+            color:#0f4c75;
+        }
+
+        .action-buttons{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .btn{
+            border-radius:10px;
+            font-weight:600;
+        }
+
+        .empty-state{
+            padding:60px 20px;
+            text-align:center;
+        }
+
+        .empty-state i{
+            font-size:60px;
+            color:#cbd5e1;
+            margin-bottom:20px;
+        }
+
+        .empty-state h4{
+            color:#555;
+            margin-bottom:10px;
+        }
+
+        .empty-state p{
+            color:#999;
+            margin:0;
+        }
+
+        .search-card{
+            background:white;
+            border-radius:18px;
+            padding:20px;
+            margin-bottom:25px;
+            box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        @media(max-width:992px){
+
+            .table-responsive{
+                overflow-x:auto;
+            }
+
+        }
+
+        @media(max-width:768px){
+
+            .page-header{
+                flex-direction:column;
+                align-items:flex-start;
+            }
+
+            .action-buttons{
+                flex-direction:column;
+            }
+
+            .action-buttons .btn{
+                width:100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+
+                <i class="fas fa-truck-loading"></i>
+                Входящи Товари
+
+            </h1>
+
+            <p class="text-muted mb-0">
+
+                Управление на входящите доставки
+
+            </p>
+
+        </div>
+
+        <a href="/incoming-loads/create"
+           class="btn btn-success">
+
+            <i class="fas fa-plus-circle"></i>
+            Добави Товар
+
+        </a>
+
+    </div>
+
+    <!-- SEARCH -->
+
+    <div class="search-card">
+
+        <form method="get"
+              th:action="@{/incoming-loads}"
+              class="row g-3">
+
+            <div class="col-md-3">
+
+                <input type="text"
+                       name="supplierCompany"
+                       th:value="${search.supplierCompany}"
+                       class="form-control"
+                       placeholder="Фирма">
+
+            </div>
+
+            <div class="col-md-2">
+
+                <input type="text"
+                       name="invoiceNumber"
+                       th:value="${search.invoiceNumber}"
+                       class="form-control"
+                       placeholder="Фактура">
+
+            </div>
+
+            <div class="col-md-3">
+
+                <input type="text"
+                       name="productName"
+                       th:value="${search.productName}"
+                       class="form-control"
+                       placeholder="Продукт">
+
+            </div>
+
+            <div class="col-md-2">
+
+                <input type="date"
+                       name="fromDate"
+                       th:value="${search.fromDate}"
+                       class="form-control">
+
+            </div>
+
+            <div class="col-md-2">
+
+                <input type="date"
+                       name="toDate"
+                       th:value="${search.toDate}"
+                       class="form-control">
+
+            </div>
+
+            <div class="col-12 d-flex gap-2 search-buttons">
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="fas fa-search"></i>
+                    Търси
+
+                </button>
+
+                <a href="/incoming-loads"
+                   class="btn btn-secondary">
+
+                    Изчисти
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- CARD -->
+
+    <div class="incoming-card">
+
+        <div class="incoming-header">
+
+            <h4 class="mb-1">
+
+                <i class="fas fa-warehouse"></i>
+                Списък с входящи товари
+
+            </h4>
+
+            <small>
+
+                Всички входящи доставки
+
+            </small>
+
+        </div>
+
+        <!-- EMPTY -->
+
+        <div th:if="${#lists.isEmpty(incomingLoads)}"
+             class="empty-state">
+
+            <i class="fas fa-inbox"></i>
+
+            <h4>
+
+                Няма входящи товари
+
+            </h4>
+
+            <p>
+
+                Добави първия входящ товар.
+
+            </p>
+
+        </div>
+
+        <!-- TABLE -->
+
+        <div class="table-responsive"
+             th:if="${!#lists.isEmpty(incomingLoads)}">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Фирма</th>
+                    <th>Фактура</th>
+                    <th>Дата</th>
+                    <th>Продукт</th>
+                    <th>Количество</th>
+                    <th>Сума</th>
+                    <th class="text-end">Действия</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="i : ${incomingLoads}">
+
+                    <!-- ID -->
+
+                    <td>
+
+                        <strong th:text="'#' + ${i.id}">
+                        </strong>
+
+                    </td>
+
+                    <!-- COMPANY -->
+
+                    <td>
+
+                        <div class="company-name"
+                             th:text="${i.supplierCompany}">
+                        </div>
+
+                    </td>
+
+                    <!-- INVOICE -->
+
+                    <td>
+
+                        <span class="invoice-badge"
+                              th:text="${i.invoiceNumber}">
+                        </span>
+
+                    </td>
+
+                    <!-- DATE -->
+
+                    <td th:text="${i.invoiceDate}">
+                    </td>
+
+                    <!-- PRODUCT -->
+
+                    <td>
+
+                        <div class="product-name"
+                             th:text="${i.productName}">
+                        </div>
+
+                    </td>
+
+                    <!-- QUANTITY -->
+
+                    <td>
+
+                        <strong th:text="${i.quantity}">
+                        </strong>
+
+                    </td>
+
+                    <!-- PRICE -->
+
+                    <td>
+
+                        <span class="price-badge"
+                              th:text="${#numbers.formatDecimal(i.totalPrice,1,2)} + ' €'">
+                        </span>
+
+                    </td>
+
+                    <!-- ACTIONS -->
+
+                    <td class="text-end">
+
+                        <div class="action-buttons justify-content-end">
+
+                            <a th:href="@{/incoming-loads/edit/{id}(id=${i.id})}"
+                               class="btn btn-warning btn-sm">
+
+                                <i class="fas fa-edit"></i>
+                                Редактирай
+
+                            </a>
+
+                            <form th:action="@{/incoming-loads/delete/{id}(id=${i.id})}"
+                                  method="post"
+                                  style="display:inline;"
+                                  sec:authorize="hasRole('ADMIN')">
+
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Сигурен ли си, че искаш да изтриеш товара?')">
+
+                                    <i class="fas fa-trash"></i>
+                                    Изтрий
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

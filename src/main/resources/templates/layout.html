@@ -257,13 +257,29 @@
 
         <li class="nav-item">
 
+            <a href="/incoming-loads"
+               class="nav-link"
+               th:classappend="${currentPath != null and currentPath.startsWith('/incoming-loads')} ? 'active'">
+
+                <i class="fas fa-truck-loading"></i>
+
+                <span>Входящи Товари</span>
+
+            </a>
+
+        </li>
+
+        <li class="nav-item">
+
+
+
             <a href="/loads"
                class="nav-link"
                th:classappend="${currentPath != null and currentPath.startsWith('/loads')} ? 'active'">
 
                 <i class="fas fa-boxes"></i>
 
-                <span>Товари</span>
+                <span>Изходящи Товари</span>
 
             </a>
 
@@ -323,33 +339,7 @@
              border:none;
              color:white;">
 
-            <div class="card-body">
 
-                <h6 class="mb-3">
-                    Статистика
-                </h6>
-
-                <div class="mb-3">
-
-                    <small>Товари</small>
-
-                    <h4 th:text="${totalLoads ?: 0}">
-                        0
-                    </h4>
-
-                </div>
-
-                <div>
-
-                    <small>Камиони</small>
-
-                    <h4 th:text="${totalTrucks ?: 0}">
-                        0
-                    </h4>
-
-                </div>
-
-            </div>
 
         </div>
 

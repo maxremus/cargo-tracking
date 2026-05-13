@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+
+    <title>
+        Редактирай Входящ Товар
+    </title>
+
+    <style>
+
+        .form-card{
+            background:white;
+            border-radius:18px;
+            padding:30px;
+            box-shadow:0 4px 14px rgba(0,0,0,0.08);
+            max-width:850px;
+            margin:0 auto;
+        }
+
+        .form-title{
+            margin-bottom:30px;
+        }
+
+        .form-title h1{
+            font-size:32px;
+            font-weight:700;
+            color:#0f4c75;
+            margin-bottom:8px;
+        }
+
+        .form-title p{
+            color:#777;
+            margin:0;
+        }
+
+        .form-label{
+            font-weight:600;
+            margin-bottom:8px;
+            color:#1e293b;
+        }
+
+        .form-control{
+            border-radius:12px;
+            padding:12px 14px;
+            border:1px solid #dbe2ea;
+        }
+
+        .form-control:focus{
+            box-shadow:none;
+            border-color:#0f4c75;
+        }
+
+        .is-invalid{
+            border-color:#dc3545 !important;
+        }
+
+        .invalid-feedback{
+            display:block;
+            font-size:14px;
+        }
+
+        .btn{
+            border-radius:12px;
+            padding:10px 20px;
+            font-weight:600;
+        }
+
+        .form-actions{
+            display:flex;
+            gap:12px;
+            margin-top:30px;
+            flex-wrap:wrap;
+        }
+
+        .readonly-field{
+            background:#f8fafc;
+        }
+
+        @media(max-width:768px){
+
+            .form-card{
+                padding:20px;
+            }
+
+            .form-actions{
+                flex-direction:column;
+            }
+
+            .form-actions .btn{
+                width:100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="form-card">
+
+        <!-- TITLE -->
+
+        <div class="form-title">
+
+            <h1>
+
+                <i class="fas fa-edit"></i>
+                Редактирай Входящ Товар
+
+            </h1>
+
+            <p>
+
+                Редакция на входяща доставка
+
+            </p>
+
+        </div>
+
+        <!-- FORM -->
+
+        <form th:action="@{/incoming-loads/update}"
+              method="post"
+              th:object="${incomingLoad}">
+
+            <!-- ID -->
+
+            <input type="hidden"
+                   th:field="*{id}">
+
+            <!-- COMPANY -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Фирма Доставчик
+
+                </label>
+
+                <input type="text"
+                       th:field="*{supplierCompany}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('supplierCompany')} ? 'is-invalid'"
+                       maxlength="150"
+                       required>
+
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('supplierCompany')}"
+                     th:errors="*{supplierCompany}">
+                </div>
+
+            </div>
+
+            <!-- INVOICE -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Номер Фактура
+
+                </label>
+
+                <input type="text"
+                       th:field="*{invoiceNumber}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('invoiceNumber')} ? 'is-invalid'"
+                       maxlength="100"
+                       required>
+
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('invoiceNumber')}"
+                     th:errors="*{invoiceNumber}">
+                </div>
+
+            </div>
+
+            <!-- DATE -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Дата Фактура
+
+                </label>
+
+                <input type="date"
+                       th:field="*{invoiceDate}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('invoiceDate')} ? 'is-invalid'"
+                       required>
+
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('invoiceDate')}"
+                     th:errors="*{invoiceDate}">
+                </div>
+
+            </div>
+
+            <!-- PRODUCT -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Продукт
+
+                </label>
+
+                <input type="text"
+                       th:field="*{productName}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('productName')} ? 'is-invalid'"
+                       maxlength="300"
+                       required>
+
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('productName')}"
+                     th:errors="*{productName}">
+                </div>
+
+            </div>
+
+            <!-- QUANTITY -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Количество
+
+                </label>
+
+                <input type="number"
+                       th:field="*{quantity}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('quantity')} ? 'is-invalid'"
+                       min="1"
+                       required>
+
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('quantity')}"
+                     th:errors="*{quantity}">
+                </div>
+
+            </div>
+
+            <!-- TOTAL PRICE -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Обща Сума
+
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       th:field="*{totalPrice}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('totalPrice')} ? 'is-invalid'"
+                       min="0.01"
+                       required>
+
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('totalPrice')}"
+                     th:errors="*{totalPrice}">
+                </div>
+
+            </div>
+
+            <!-- NOTES -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Бележки
+
+                </label>
+
+                <textarea th:field="*{notes}"
+                          class="form-control"
+                          th:classappend="${#fields.hasErrors('notes')} ? 'is-invalid'"
+                          maxlength="2000"
+                          rows="4">
+                </textarea>
+
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('notes')}"
+                     th:errors="*{notes}">
+                </div>
+
+            </div>
+
+            <!-- CREATED DATE -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Дата Създаване
+
+                </label>
+
+                <input type="text"
+                       th:value="${incomingLoad.createdAt != null ?
+                       #temporals.format(incomingLoad.createdAt, 'dd.MM.yyyy HH:mm')
+                       : ''}"
+                       class="form-control readonly-field"
+                       readonly>
+
+            </div>
+
+            <!-- BUTTONS -->
+
+            <div class="form-actions">
+
+                <button type="submit"
+                        class="btn btn-success">
+
+                    <i class="fas fa-save"></i>
+                    Обнови
+
+                </button>
+
+                <a href="/incoming-loads"
+                   class="btn btn-secondary">
+
+                    Назад
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

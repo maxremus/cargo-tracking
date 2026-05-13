@@ -25,24 +25,17 @@ import java.util.UUID;
 public class LoadRecordServiceImpl
         implements LoadRecordService {
 
-    private final LoadRecordRepository
-            loadRecordRepository;
+    private final LoadRecordRepository loadRecordRepository;
 
-    private static final long
-            MAX_FILE_SIZE =
-            10 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-    private static final Set<String>
-            ALLOWED_IMAGE_TYPES =
-            Set.of(
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
                     "image/jpeg",
                     "image/png",
                     "image/webp"
             );
 
-    private static final Set<String>
-            ALLOWED_DOCUMENT_TYPES =
-            Set.of(
+    private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of(
                     "application/pdf",
 
                     "application/msword",
@@ -263,8 +256,7 @@ public class LoadRecordServiceImpl
             MultipartFile file
     ) {
 
-        if (file.getSize()
-                > MAX_FILE_SIZE) {
+        if (file.getSize() > MAX_FILE_SIZE) {
 
             throw new RuntimeException(
                     "File too large"
