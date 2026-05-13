@@ -6,6 +6,11 @@ import org.example.cargotracking.repository.IncomingLoadRepository;
 import org.example.cargotracking.service.IncomingLoadService;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -49,9 +54,23 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
             );
         }
 
-        incomingLoadRepository.save(
-                incomingLoad
-        );
+        boolean exists =
+                incomingLoadRepository
+                        .existsByInvoiceNumberAndSupplierCompany(
+
+                                incomingLoad.getInvoiceNumber(),
+
+                                incomingLoad.getSupplierCompany()
+                        );
+
+        if (exists && incomingLoad.getId() == null) {
+
+            throw new RuntimeException(
+                    "Вече има въведена фактура с този номер за този доставчик!"
+            );
+        }
+
+        incomingLoadRepository.save(incomingLoad);
     }
 
     @Override
@@ -61,74 +80,129 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
     }
 
     @Override
-    public List<IncomingLoad> search(IncomingLoadSearchDTO search) {
+    public Page<IncomingLoad> search(
+
+            IncomingLoadSearchDTO search,
+
+            Pageable pageable
+
+    ) {
+
+        List<IncomingLoad> loads =
+                incomingLoadRepository.findAll();
+
+        List<IncomingLoad> filtered =
+                loads.stream()
+
+                        .filter(i ->
+
+                                search.getSupplierCompany() == null
+                                        ||
+                                        search.getSupplierCompany().isBlank()
+                                        ||
+                                        i.getSupplierCompany()
+                                                .toLowerCase()
+                                                .contains(
+                                                        search.getSupplierCompany()
+                                                                .toLowerCase()
+                                                )
+                        )
+
+                        .filter(i ->
+
+                                search.getInvoiceNumber() == null
+                                        ||
+                                        search.getInvoiceNumber().isBlank()
+                                        ||
+                                        i.getInvoiceNumber()
+                                                .toLowerCase()
+                                                .contains(
+                                                        search.getInvoiceNumber()
+                                                                .toLowerCase()
+                                                )
+                        )
+
+                        .filter(i ->
+
+                                search.getProductName() == null
+                                        ||
+                                        search.getProductName().isBlank()
+                                        ||
+                                        i.getProductName()
+                                                .toLowerCase()
+                                                .contains(
+                                                        search.getProductName()
+                                                                .toLowerCase()
+                                                )
+                        )
+
+                        .filter(i ->
+
+                                search.getFromDate() == null
+                                        ||
+                                        !i.getInvoiceDate()
+                                                .isBefore(
+                                                        search.getFromDate()
+                                                )
+                        )
+
+                        .filter(i ->
+
+                                search.getToDate() == null
+                                        ||
+                                        !i.getInvoiceDate()
+                                                .isAfter(
+                                                        search.getToDate()
+                                                )
+                        )
+
+                        .toList();
+
+        int start =
+                (int) pageable.getOffset();
+
+        int end =
+                Math.min(
+                        start + pageable.getPageSize(),
+                        filtered.size()
+                );
+
+        List<IncomingLoad> pageContent =
+                filtered.subList(start, end);
+
+        return new PageImpl<>(
+
+                pageContent,
+
+                pageable,
+
+                filtered.size()
+        );
+    }
+
+    @Override
+    public long countSuppliers() {
 
         return incomingLoadRepository
                 .findAll()
                 .stream()
-
-                .filter(i ->
-
-                        search.getSupplierCompany() == null
-                                ||
-                                search.getSupplierCompany().isBlank()
-                                ||
-                                i.getSupplierCompany()
-                                        .toLowerCase()
-                                        .contains(
-                                                search.getSupplierCompany()
-                                                        .toLowerCase()
-                                        )
+                .map(load ->
+                        load.getSupplierCompany()
                 )
+                .distinct()
+                .count();
+    }
 
-                .filter(i ->
+    @Override
+    public long countInvoices() {
 
-                        search.getInvoiceNumber() == null
-                                ||
-                                search.getInvoiceNumber().isBlank()
-                                ||
-                                i.getInvoiceNumber()
-                                        .toLowerCase()
-                                        .contains(
-                                                search.getInvoiceNumber()
-                                                        .toLowerCase()
-                                        )
+        return incomingLoadRepository
+                .findAll()
+                .stream()
+                .map(load ->
+                        load.getInvoiceNumber()
                 )
-
-                .filter(i ->
-
-                        search.getProductName() == null
-                                ||
-                                search.getProductName().isBlank()
-                                ||
-                                i.getProductName()
-                                        .toLowerCase()
-                                        .contains(
-                                                search.getProductName()
-                                                        .toLowerCase()
-                                        )
-                )
-
-                .filter(i ->
-
-                        search.getFromDate() == null
-                                ||
-                                !i.getInvoiceDate()
-                                        .isBefore(
-                                                search.getFromDate()
-                                        )
-                )
-
-                .filter(i ->
-
-                        search.getToDate() == null
-                                ||
-                                !i.getInvoiceDate()
-                                        .isAfter(
-                                                search.getToDate()
-                                        )
-                )
-
-                .toList();
+                .distinct()
+                .count();
     }
 }

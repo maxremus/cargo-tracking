@@ -538,6 +538,434 @@
 
         </div>
 
+        <!-- DELIVERED LOADS -->
+
+        <div class="row g-4 mt-1">
+
+            <!-- TOTAL DELIVERED -->
+
+            <div class="col-lg-4">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-success">
+
+                            <i class="fas fa-check-circle"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Доставени товари
+
+                        </div>
+
+                        <div class="stats-value"
+                             th:text="${deliveredLoads}">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- DELIVERY PERCENT -->
+
+            <div class="col-lg-4">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-primary">
+
+                            <i class="fas fa-chart-pie"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Успешни доставки
+
+                        </div>
+
+                        <div class="stats-value"
+                             th:text="${deliveryPercent + '%'}">
+
+                            0%
+
+                        </div>
+
+                        <div class="progress mt-3"
+                             style="height:12px; border-radius:10px;">
+
+                            <div class="progress-bar bg-success"
+
+                                 role="progressbar"
+
+                                 th:style="'width:' + ${deliveryPercent} + '%'">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- LAST DELIVERED -->
+
+            <div class="col-lg-4">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-dark">
+
+                            <i class="fas fa-truck-fast"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Последно доставен
+
+                        </div>
+
+                        <div class="stats-value"
+                             style="font-size:22px;"
+                             th:text="${lastDeliveredLoad}">
+
+                            Няма
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- DELIVERED TABLE -->
+
+        <div class="card report-card mt-4">
+
+            <div class="card-header bg-success text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-box-check"></i>
+                    Последни доставени товари
+
+                </h5>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <div th:if="${#lists.isEmpty(deliveredLoadsList)}"
+                     class="empty-box">
+
+                    <i class="fas fa-box-open"></i>
+
+                    <p>
+
+                        Няма доставени товари
+
+                    </p>
+
+                </div>
+
+                <div class="table-responsive"
+                     th:if="${!#lists.isEmpty(deliveredLoadsList)}">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                        <tr>
+
+                            <th class="ps-4">
+
+                                Продукт
+
+                            </th>
+
+                            <th>
+
+                                Камион
+
+                            </th>
+
+                            <th>
+
+                                Доставил
+
+                            </th>
+
+                            <th class="text-end pe-4">
+
+                                Количество
+
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="load : ${deliveredLoadsList}">
+
+                            <td class="ps-4 fw-semibold"
+                                th:text="${load.productName}">
+                            </td>
+
+                            <td th:text="${load.truck?.truckNumber}">
+                            </td>
+
+                            <td th:text="${load.transportedBy}">
+                            </td>
+
+                            <td class="text-end pe-4">
+
+                        <span class="badge bg-success badge-modern"
+                              th:text="${load.quantity}">
+                        </span>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- INCOMING LOADS -->
+
+        <div class="row g-4 mt-1">
+
+            <!-- TOTAL -->
+
+            <div class="col-lg-4">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-primary">
+
+                            <i class="fas fa-truck-loading"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Входящи товари
+
+                        </div>
+
+                        <div class="stats-value"
+                             th:text="${incomingLoadsCount}">
+
+                            0
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- TOTAL MONEY -->
+
+            <div class="col-lg-4">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-success">
+
+                            <i class="fas fa-euro-sign"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Обща стойност
+
+                        </div>
+
+                        <div class="stats-value"
+                             style="font-size:26px;"
+                             th:text="${totalIncomingPrice + ' €'}">
+
+                            0 €
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- LAST INVOICE -->
+
+            <div class="col-lg-4">
+
+                <div class="card stats-card">
+
+                    <div class="card-body">
+
+                        <div class="stats-icon icon-dark">
+
+                            <i class="fas fa-file-invoice"></i>
+
+                        </div>
+
+                        <div class="stats-title">
+
+                            Последна фактура
+
+                        </div>
+
+                        <div class="stats-value"
+                             style="font-size:22px;"
+                             th:text="${lastInvoiceNumber}">
+
+                            Няма
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- INCOMING TABLE -->
+
+        <div class="card report-card mt-4">
+
+            <div class="card-header bg-primary text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-warehouse"></i>
+                    Последни входящи товари
+
+                </h5>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <div th:if="${#lists.isEmpty(incomingLoadsList)}"
+                     class="empty-box">
+
+                    <i class="fas fa-inbox"></i>
+
+                    <p>
+
+                        Няма входящи товари
+
+                    </p>
+
+                </div>
+
+                <div class="table-responsive"
+                     th:if="${!#lists.isEmpty(incomingLoadsList)}">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                        <tr>
+
+                            <th class="ps-4">
+
+                                Фирма
+
+                            </th>
+
+                            <th>
+
+                                Фактура
+
+                            </th>
+
+                            <th>
+
+                                Продукт
+
+                            </th>
+
+                            <th class="text-end pe-4">
+
+                                Сума
+
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="load : ${incomingLoadsList}">
+
+                            <td class="ps-4 fw-semibold"
+                                th:text="${load.supplierCompany}">
+                            </td>
+
+                            <td th:text="${load.invoiceNumber}">
+                            </td>
+
+                            <td th:text="${load.productName}">
+                            </td>
+
+                            <td class="text-end pe-4">
+
+                        <span class="badge bg-primary badge-modern"
+                              th:text="${#numbers.formatDecimal(load.totalPrice,1,2) + ' €'}">
+                        </span>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
 </section>

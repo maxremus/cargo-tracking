@@ -151,6 +151,8 @@
 
 <div layout:fragment="content">
 
+    <!-- HEADER -->
+
     <div class="loads-header">
 
         <div>
@@ -175,15 +177,10 @@
             <a sec:authorize="hasRole('ADMIN')"
 
                th:href="@{/loads/export/excel(
-
                productName=${search.productName},
-
                truckNumber=${search.truckNumber},
-
                loadedBy=${search.loadedBy},
-
                status=${search.status}
-
                )}"
 
                class="btn btn-dark">
@@ -288,9 +285,36 @@
 
     </div>
 
+    <!-- SORTING -->
+
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+
+        <a th:href="@{/loads(sortBy='loadingDate',direction='desc')}"
+           class="btn btn-outline-primary btn-sm">
+
+            Най-нови
+
+        </a>
+
+        <a th:href="@{/loads(sortBy='productName',direction='asc')}"
+           class="btn btn-outline-primary btn-sm">
+
+            Продукт A-Z
+
+        </a>
+
+        <a th:href="@{/loads(sortBy='status',direction='asc')}"
+           class="btn btn-outline-primary btn-sm">
+
+            Статус
+
+        </a>
+
+    </div>
+
     <!-- EMPTY -->
 
-    <div th:if="${#lists.isEmpty(loads)}"
+    <div th:if="${loads.empty}"
          class="empty-state">
 
         <h4 class="mb-3">
@@ -309,7 +333,7 @@
 
     <!-- LOADS -->
 
-    <div th:each="load : ${loads}"
+    <div th:each="load : ${loads.content}"
          class="load-item">
 
         <div class="load-grid">
@@ -395,11 +419,8 @@
                 <span class="badge"
 
                       th:classappend="
-
                       ${load.status.name() == 'PENDING'} ? 'status-pending' :
-
                       (${load.status.name() == 'LOADING'} ? 'status-loading' :
-
                       'status-delivered')"
 
                       th:text="${load.status.displayName}">
@@ -438,11 +459,8 @@
         <div th:if="${load.imagePath != null}">
 
             <img th:src="@{'/uploads/' + ${load.imagePath}}"
-
                  class="load-image"
-
                  loading="lazy"
-
                  onclick="window.open(this.src,'_blank')">
 
         </div>
@@ -475,7 +493,7 @@
 
             </a>
 
-            <form th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
+            <form sec:authorize="hasRole('ADMIN')"
                   th:action="@{/loads/delete/{id}(id=${load.id})}"
                   method="post">
 
@@ -504,17 +522,13 @@
            th:if="${currentPage > 0}"
 
            th:href="@{/loads(
-
            page=${currentPage - 1},
-
            productName=${search.productName},
-
            truckNumber=${search.truckNumber},
-
            loadedBy=${search.loadedBy},
-
-           status=${search.status}
-
+           status=${search.status},
+           sortBy=${sortBy},
+           direction=${direction}
            )}">
 
             <i class="fas fa-arrow-left"></i>
@@ -536,17 +550,13 @@
            th:if="${currentPage + 1 < totalPages}"
 
            th:href="@{/loads(
-
            page=${currentPage + 1},
-
            productName=${search.productName},
-
            truckNumber=${search.truckNumber},
-
            loadedBy=${search.loadedBy},
-
-           status=${search.status}
-
+           status=${search.status},
+           sortBy=${sortBy},
+           direction=${direction}
            )}">
 
             Next

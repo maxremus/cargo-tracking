@@ -22,6 +22,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Controller
 @RequiredArgsConstructor
@@ -278,19 +282,43 @@ public class LoadController {
     @GetMapping
     public String listLoads(
 
-            @ModelAttribute LoadSearchDTO search,
+            @ModelAttribute
+            LoadSearchDTO search,
 
             @RequestParam(defaultValue = "0")
             int page,
+
+            @RequestParam(defaultValue = "5")
+            int size,
+
+            @RequestParam(defaultValue = "loadingDate")
+            String sortBy,
+
+            @RequestParam(defaultValue = "desc")
+            String direction,
 
             Model model
 
     ) {
 
+        Sort sort =
+                direction.equals("asc")
+                        ?
+                        Sort.by(sortBy).ascending()
+                        :
+                        Sort.by(sortBy).descending();
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        sort
+                );
+
         Page<LoadRecord> loads =
                 loadRecordService.searchLoads(
                         search,
-                        PageRequest.of(page, 10)
+                        pageable
                 );
 
         var trucks =
@@ -298,7 +326,7 @@ public class LoadController {
 
         model.addAttribute(
                 "loads",
-                loads.getContent()
+                loads
         );
 
         model.addAttribute(
@@ -329,6 +357,16 @@ public class LoadController {
         model.addAttribute(
                 "totalTrucks",
                 trucks.size()
+        );
+
+        model.addAttribute(
+                "sortBy",
+                sortBy
+        );
+
+        model.addAttribute(
+                "direction",
+                direction
         );
 
         return "loads";

@@ -134,6 +134,19 @@
             box-shadow:0 4px 14px rgba(0,0,0,0.08);
         }
 
+        .pagination .page-link{
+            border-radius:10px;
+            margin:0 4px;
+            color:#0f4c75;
+            border:none;
+            box-shadow:0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .pagination .active .page-link{
+            background:#0f4c75;
+            color:white;
+        }
+
         @media(max-width:992px){
 
             .table-responsive{
@@ -300,7 +313,7 @@
 
         <!-- EMPTY -->
 
-        <div th:if="${#lists.isEmpty(incomingLoads)}"
+        <div th:if="${#lists.isEmpty(incomingLoads.content)}"
              class="empty-state">
 
             <i class="fas fa-inbox"></i>
@@ -322,7 +335,7 @@
         <!-- TABLE -->
 
         <div class="table-responsive"
-             th:if="${!#lists.isEmpty(incomingLoads)}">
+             th:if="${!#lists.isEmpty(incomingLoads.content)}">
 
             <table class="table table-hover align-middle">
 
@@ -345,9 +358,7 @@
 
                 <tbody>
 
-                <tr th:each="i : ${incomingLoads}">
-
-                    <!-- ID -->
+                <tr th:each="i : ${incomingLoads.content}">
 
                     <td>
 
@@ -355,8 +366,6 @@
                         </strong>
 
                     </td>
-
-                    <!-- COMPANY -->
 
                     <td>
 
@@ -366,8 +375,6 @@
 
                     </td>
 
-                    <!-- INVOICE -->
-
                     <td>
 
                         <span class="invoice-badge"
@@ -376,12 +383,8 @@
 
                     </td>
 
-                    <!-- DATE -->
-
                     <td th:text="${i.invoiceDate}">
                     </td>
-
-                    <!-- PRODUCT -->
 
                     <td>
 
@@ -391,16 +394,12 @@
 
                     </td>
 
-                    <!-- QUANTITY -->
-
                     <td>
 
                         <strong th:text="${i.quantity}">
                         </strong>
 
                     </td>
-
-                    <!-- PRICE -->
 
                     <td>
 
@@ -409,8 +408,6 @@
                         </span>
 
                     </td>
-
-                    <!-- ACTIONS -->
 
                     <td class="text-end">
 
@@ -449,6 +446,112 @@
                 </tbody>
 
             </table>
+
+            <!-- PAGINATION -->
+
+            <div class="d-flex justify-content-center p-4"
+                 th:if="${totalPages > 1}">
+
+                <nav>
+
+                    <ul class="pagination">
+
+                        <!-- PREVIOUS -->
+
+                        <li class="page-item"
+                            th:classappend="${currentPage == 0} ? 'disabled'">
+
+                            <a class="page-link"
+
+                               th:href="@{/incoming-loads(
+
+                               page=${currentPage - 1},
+
+                               supplierCompany=${search.supplierCompany},
+
+                               invoiceNumber=${search.invoiceNumber},
+
+                               productName=${search.productName},
+
+                               fromDate=${search.fromDate},
+
+                               toDate=${search.toDate}
+
+                               )}">
+
+                                Previous
+
+                            </a>
+
+                        </li>
+
+                        <!-- PAGE NUMBERS -->
+
+                        <li class="page-item"
+
+                            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+
+                            th:classappend="${i == currentPage} ? 'active'">
+
+                            <a class="page-link"
+
+                               th:text="${i + 1}"
+
+                               th:href="@{/incoming-loads(
+
+                               page=${i},
+
+                               supplierCompany=${search.supplierCompany},
+
+                               invoiceNumber=${search.invoiceNumber},
+
+                               productName=${search.productName},
+
+                               fromDate=${search.fromDate},
+
+                               toDate=${search.toDate}
+
+                               )}">
+
+                            </a>
+
+                        </li>
+
+                        <!-- NEXT -->
+
+                        <li class="page-item"
+
+                            th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+
+                            <a class="page-link"
+
+                               th:href="@{/incoming-loads(
+
+                               page=${currentPage + 1},
+
+                               supplierCompany=${search.supplierCompany},
+
+                               invoiceNumber=${search.invoiceNumber},
+
+                               productName=${search.productName},
+
+                               fromDate=${search.fromDate},
+
+                               toDate=${search.toDate}
+
+                               )}">
+
+                                Next
+
+                            </a>
+
+                        </li>
+
+                    </ul>
+
+                </nav>
+
+            </div>
 
         </div>
 

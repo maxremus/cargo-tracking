@@ -6,4 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IncomingLoadRepository extends JpaRepository<IncomingLoad, Long> {
+
+    boolean existsByInvoiceNumberAndSupplierCompany(
+            String invoiceNumber,
+            String supplierCompany
+    );
 }
