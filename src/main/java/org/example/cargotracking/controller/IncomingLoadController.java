@@ -17,6 +17,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/incoming-loads")
@@ -230,5 +235,19 @@ public class IncomingLoadController {
         );
 
         return "redirect:/incoming-loads";
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text == null || text.isBlank()) {
+                    setValue(null);
+                } else {
+                    setValue(new BigDecimal(text.replace(",", ".")));
+                }
+            }
+        });
     }
 }

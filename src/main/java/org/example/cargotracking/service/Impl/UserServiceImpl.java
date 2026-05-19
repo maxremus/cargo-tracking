@@ -3,6 +3,7 @@ package org.example.cargotracking.service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.example.cargotracking.entity.User;
 import org.example.cargotracking.repository.UserRepository;
+import org.example.cargotracking.service.SecurityService;
 import org.example.cargotracking.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,10 +12,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl
+        implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityService securityService;
 
     @Override
     public User save(User user) {
@@ -24,7 +27,10 @@ public class UserServiceImpl implements UserService {
         if (user.getId() == null) {
 
             if (userRepository
-                    .findByUsername(user.getUsername())
+                    .findByUsernameAndCompany(
+                            user.getUsername(),
+                            securityService.getCurrentCompany()
+                    )
                     .isPresent()) {
 
                 throw new RuntimeException(
@@ -38,14 +44,25 @@ public class UserServiceImpl implements UserService {
                     )
             );
 
+            // SET COMPANY
+
+            user.setCompany(
+                    securityService.getCurrentCompany()
+            );
+
             return userRepository.save(user);
         }
 
         // UPDATE
 
         User existingUser =
-                userRepository.findById(user.getId())
+                userRepository
+                        .findByIdAndCompany(
+                                user.getId(),
+                                securityService.getCurrentCompany()
+                        )
                         .orElseThrow(() ->
+
                                 new RuntimeException(
                                         "User not found"
                                 )
@@ -83,7 +100,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) {
+    public User findByUsername(
+            String username
+    ) {
 
         return userRepository
                 .findByUsername(username)
@@ -93,15 +112,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAll() {
 
-        return userRepository.findAll();
+        return userRepository.findAllByCompany(
+                securityService.getCurrentCompany()
+        );
     }
 
     @Override
     public void delete(Long id) {
 
         User user =
-                userRepository.findById(id)
+                userRepository
+                        .findByIdAndCompany(
+                                id,
+                                securityService.getCurrentCompany()
+                        )
                         .orElseThrow(() ->
+
                                 new RuntimeException(
                                         "User not found"
                                 )
@@ -117,8 +143,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long id) {
 
-        return userRepository.findById(id)
-
+        return userRepository
+                .findByIdAndCompany(
+                        id,
+                        securityService.getCurrentCompany()
+                )
                 .orElseThrow(() ->
 
                         new RuntimeException(

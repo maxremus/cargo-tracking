@@ -27,4 +27,8 @@ public class SystemLog {
     private String ipAddress;
 
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 }

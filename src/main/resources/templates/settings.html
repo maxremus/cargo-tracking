@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="bg"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+
+<head>
+
+    <title>Настройки</title>
+
+    <style>
+
+        .settings-container{
+            max-width:1100px;
+            margin:0 auto;
+        }
+
+        .settings-header{
+            margin-bottom:30px;
+        }
+
+        .settings-card{
+            background:white;
+            border-radius:18px;
+            padding:30px;
+            margin-bottom:25px;
+            box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .settings-title{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin-bottom:25px;
+            font-size:22px;
+            font-weight:700;
+            color:#0f4c75;
+        }
+
+        .form-label{
+            font-weight:600;
+            margin-bottom:8px;
+            color:#1e293b;
+        }
+
+        .form-control,
+        .form-select{
+            border-radius:12px;
+            padding:12px;
+            border:1px solid #dbe2ea;
+        }
+
+        .form-control:focus,
+        .form-select:focus{
+            box-shadow:none;
+            border-color:#0f4c75;
+        }
+
+        .switch-box{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:15px 0;
+            border-bottom:1px solid #eee;
+        }
+
+        .switch-box:last-child{
+            border-bottom:none;
+        }
+
+        .switch-title{
+            font-weight:600;
+            color:#2c3e50;
+        }
+
+        .switch-desc{
+            font-size:14px;
+            color:#777;
+        }
+
+        .save-btn{
+            border-radius:12px;
+            padding:12px 25px;
+            font-weight:600;
+        }
+
+        .logo-preview{
+            width:120px;
+            height:120px;
+            object-fit:cover;
+            border-radius:16px;
+            border:1px solid #ddd;
+            margin-bottom:15px;
+        }
+
+        @media(max-width:768px){
+
+            .settings-card{
+                padding:20px;
+            }
+
+            .switch-box{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="settings-container">
+
+        <!-- HEADER -->
+
+        <div class="settings-header">
+
+            <h1>
+
+                <i class="fas fa-cogs"></i>
+                Настройки
+
+            </h1>
+
+            <p class="text-muted">
+
+                Управление на фирма, email известия и системни настройки
+
+            </p>
+
+        </div>
+
+        <form th:action="@{/admin/settings/save}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <!-- COMPANY -->
+
+            <div class="settings-card">
+
+                <div class="settings-title">
+
+                    <i class="fas fa-building"></i>
+                    Данни за фирмата
+
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Име на фирма
+
+                        </label>
+
+                        <input type="text"
+                               name="companyName"
+                               class="form-control"
+                               th:value="${settings.companyName}">
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            ЕИК
+
+                        </label>
+
+                        <input type="text"
+                               name="eik"
+                               class="form-control"
+                               th:value="${settings.eik}">
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Телефон
+
+                        </label>
+
+                        <input type="text"
+                               name="phone"
+                               class="form-control"
+                               th:value="${settings.phone}">
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Email
+
+                        </label>
+
+                        <input type="email"
+                               name="email"
+                               class="form-control"
+                               th:value="${settings.email}">
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <label class="form-label">
+
+                            Адрес
+
+                        </label>
+
+                        <textarea name="address"
+                                  class="form-control"
+                                  rows="3"
+                                  th:text="${settings.address}">
+                        </textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- LOGO -->
+
+            <div class="settings-card">
+
+                <div class="settings-title">
+
+                    <i class="fas fa-image"></i>
+                    Лого
+
+                </div>
+
+                <img th:if="${settings.logo != null}"
+                     th:src="@{'/uploads/' + ${settings.logo}}"
+                     class="logo-preview">
+
+                <input type="file" name="logoFile" class="form-control">
+
+            </div>
+
+            <!-- EMAIL -->
+
+            <div class="settings-card">
+
+                <div class="settings-title">
+
+                    <i class="fas fa-envelope"></i>
+                    Email настройки
+
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            SMTP Host
+
+                        </label>
+
+                        <input type="text"
+                               name="smtpHost"
+                               class="form-control">
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+
+                            SMTP Port
+
+                        </label>
+
+                        <input type="number"
+                               name="smtpPort"
+                               class="form-control">
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+
+                            TLS
+
+                        </label>
+
+                        <select name="smtpTls"
+                                class="form-select">
+
+                            <option value="true">
+                                Enabled
+                            </option>
+
+                            <option value="false">
+                                Disabled
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            SMTP Username
+
+                        </label>
+
+                        <input type="text"
+                               name="smtpUsername"
+                               class="form-control">
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            SMTP Password
+
+                        </label>
+
+                        <input type="password"
+                               name="smtpPassword"
+                               class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- NOTIFICATIONS -->
+
+            <div class="settings-card">
+
+                <div class="settings-title">
+
+                    <i class="fas fa-bell"></i>
+                    Известия
+
+                </div>
+
+                <div class="switch-box">
+
+                    <div>
+
+                        <div class="switch-title">
+
+                            Email при нов товар
+
+                        </div>
+
+                        <div class="switch-desc">
+
+                            Изпращане на email при добавяне на товар
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="notifyNewLoad">
+
+                    </div>
+
+                </div>
+
+                <div class="switch-box">
+
+                    <div>
+
+                        <div class="switch-title">
+
+                            Email при входящ товар
+
+                        </div>
+
+                        <div class="switch-desc">
+
+                            Известие при нова фактура
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="notifyIncomingLoad">
+
+                    </div>
+
+                </div>
+
+                <div class="switch-box">
+
+                    <div>
+
+                        <div class="switch-title">
+
+                            Daily Reports
+
+                        </div>
+
+                        <div class="switch-desc">
+
+                            Дневни статистики по email
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="dailyReports">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SAVE -->
+
+            <div class="d-flex justify-content-end">
+
+                <button type="submit"
+                        class="btn btn-success save-btn">
+
+                    <i class="fas fa-save"></i>
+                    Запази Настройките
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

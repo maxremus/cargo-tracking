@@ -1,8 +1,8 @@
 package org.example.cargotracking.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.cargotracking.entity.LoadStatus;
+import org.example.cargotracking.service.CompanySettingsService;
 import org.example.cargotracking.service.IncomingLoadService;
 import org.example.cargotracking.service.LoadRecordService;
 import org.example.cargotracking.service.TruckService;
@@ -15,36 +15,60 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final LoadRecordService loadRecordService;
-    private final TruckService truckService;
-    private final UserService userService;
-    private final IncomingLoadService incomingLoadService;
+    private final LoadRecordService
+            loadRecordService;
+
+    private final TruckService
+            truckService;
+
+    private final UserService
+            userService;
+
+    private final IncomingLoadService
+            incomingLoadService;
+
+    private final CompanySettingsService
+            companySettingsService;
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(
+            Model model
+    ) {
 
         var loads =
                 loadRecordService.findAll();
 
         long pending =
                 loads.stream()
+
                         .filter(l ->
-                                l.getStatus() == LoadStatus.PENDING
+
+                                l.getStatus()
+                                        == LoadStatus.PENDING
                         )
+
                         .count();
 
         long loading =
                 loads.stream()
+
                         .filter(l ->
-                                l.getStatus() == LoadStatus.LOADING
+
+                                l.getStatus()
+                                        == LoadStatus.LOADING
                         )
+
                         .count();
 
         long delivered =
                 loads.stream()
+
                         .filter(l ->
-                                l.getStatus() == LoadStatus.DELIVERED
+
+                                l.getStatus()
+                                        == LoadStatus.DELIVERED
                         )
+
                         .count();
 
         model.addAttribute(
@@ -92,6 +116,16 @@ public class DashboardController {
         model.addAttribute(
                 "invoicesCount",
                 incomingLoadService.countInvoices()
+        );
+
+        // COMPANY SETTINGS
+
+        model.addAttribute(
+
+                "companySettings",
+
+                companySettingsService
+                        .getSettings()
         );
 
         return "dashboard";

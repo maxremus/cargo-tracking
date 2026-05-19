@@ -13,8 +13,7 @@ import org.example.cargotracking.service.LoadRecordService;
 import org.example.cargotracking.service.SystemLogService;
 import org.example.cargotracking.service.TruckService;
 import org.example.cargotracking.service.UserService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -22,30 +21,41 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/loads")
 public class LoadController {
 
-    private final LoadRecordService loadRecordService;
-    private final TruckService truckService;
-    private final UserService userService;
-    private final ExcelExportService excelExportService;
-    private final SystemLogService systemLogService;
+    private final LoadRecordService
+            loadRecordService;
+
+    private final TruckService
+            truckService;
+
+    private final UserService
+            userService;
+
+    private final ExcelExportService
+            excelExportService;
+
+    private final SystemLogService
+            systemLogService;
 
     @GetMapping("/create")
     public String createLoadForm(
+
             Model model,
+
             HttpServletRequest request
+
     ) {
 
-        var loads = loadRecordService.findAll();
-        var trucks = truckService.findAll();
+        var loads =
+                loadRecordService.findAll();
+
+        var trucks =
+                truckService.findAll();
 
         model.addAttribute(
                 "loadRecord",
@@ -77,13 +87,20 @@ public class LoadController {
 
     @GetMapping("/edit/{id}")
     public String editLoadForm(
+
             @PathVariable Long id,
+
             Model model,
+
             HttpServletRequest request
+
     ) {
 
-        var loads = loadRecordService.findAll();
-        var trucks = truckService.findAll();
+        var loads =
+                loadRecordService.findAll();
+
+        var trucks =
+                truckService.findAll();
 
         LoadRecord load =
                 loadRecordService.findById(id);
@@ -125,10 +142,16 @@ public class LoadController {
 
             BindingResult bindingResult,
 
-            @RequestParam("image")
+            @RequestParam(
+                    value = "image",
+                    required = false
+            )
             MultipartFile image,
 
-            @RequestParam("document")
+            @RequestParam(
+                    value = "document",
+                    required = false
+            )
             MultipartFile document,
 
             Model model,
@@ -161,7 +184,9 @@ public class LoadController {
                 auth.getName();
 
         User user =
-                userService.findByUsername(username);
+                userService.findByUsername(
+                        username
+                );
 
         loadRecord.setCreatedBy(user);
 
@@ -195,10 +220,16 @@ public class LoadController {
 
             BindingResult bindingResult,
 
-            @RequestParam("image")
+            @RequestParam(
+                    value = "image",
+                    required = false
+            )
             MultipartFile image,
 
-            @RequestParam("document")
+            @RequestParam(
+                    value = "document",
+                    required = false
+            )
             MultipartFile document,
 
             Model model,
@@ -375,7 +406,8 @@ public class LoadController {
     @GetMapping("/export/excel")
     public void exportExcel(
 
-            @ModelAttribute LoadSearchDTO search,
+            @ModelAttribute
+            LoadSearchDTO search,
 
             HttpServletResponse response
 

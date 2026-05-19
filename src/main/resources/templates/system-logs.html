@@ -15,6 +15,8 @@
             justify-content:space-between;
             align-items:center;
             margin-bottom:30px;
+            gap:15px;
+            flex-wrap:wrap;
         }
 
         .log-card{
@@ -83,6 +85,15 @@
             box-shadow:0 2px 8px rgba(0,0,0,0.08);
         }
 
+        .pagination-container{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            margin-top:30px;
+            flex-wrap:wrap;
+        }
+
         @media(max-width:768px){
 
             .logs-header{
@@ -126,9 +137,23 @@
 
         </div>
 
+        <div class="d-flex gap-2">
+
+            <a href="/admin/logs/export"
+               class="btn btn-success">
+
+                <i class="fas fa-file-excel"></i>
+                Export Excel
+
+            </a>
+
+        </div>
+
     </div>
 
-    <div th:if="${#lists.isEmpty(logs)}"
+    <!-- EMPTY -->
+
+    <div th:if="${logs.empty}"
          class="empty-box">
 
         <h4>
@@ -139,7 +164,9 @@
 
     </div>
 
-    <div th:each="log : ${logs}"
+    <!-- LOGS -->
+
+    <div th:each="log : ${logs.content}"
          class="log-card">
 
         <div class="log-top">
@@ -199,6 +226,44 @@
             </div>
 
         </div>
+
+    </div>
+
+    <!-- PAGINATION -->
+
+    <div class="pagination-container"
+         th:if="${totalPages > 1}">
+
+        <a class="btn btn-outline-primary"
+
+           th:if="${currentPage > 0}"
+
+           th:href="@{/admin/logs(page=${currentPage - 1})}">
+
+            <i class="fas fa-arrow-left"></i>
+            Previous
+
+        </a>
+
+        <span class="fw-bold">
+
+            Страница
+            <span th:text="${currentPage + 1}"></span>
+            от
+            <span th:text="${totalPages}"></span>
+
+        </span>
+
+        <a class="btn btn-outline-primary"
+
+           th:if="${currentPage + 1 < totalPages}"
+
+           th:href="@{/admin/logs(page=${currentPage + 1})}">
+
+            Next
+            <i class="fas fa-arrow-right"></i>
+
+        </a>
 
     </div>
 

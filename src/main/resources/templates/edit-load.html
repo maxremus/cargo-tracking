@@ -291,31 +291,6 @@
 
             </div>
 
-            <!-- IMAGE -->
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Снимка
-                </label>
-
-                <input type="file"
-                       name="image"
-                       class="form-control"
-                       accept="image/*">
-
-                <small class="text-muted">
-
-                    JPG, PNG, WEBP
-                    | Максимум 10MB
-
-                </small>
-
-                <img th:if="${loadRecord.imagePath != null}"
-                     th:src="@{'/uploads/' + ${loadRecord.imagePath}}"
-                     class="preview-image">
-
-            </div>
 
             <!-- DOCUMENT -->
 

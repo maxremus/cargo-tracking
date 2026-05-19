@@ -1,39 +1,44 @@
 package org.example.cargotracking.service.Impl;
 
+import lombok.RequiredArgsConstructor;
 import org.example.cargotracking.dto.IncomingLoadSearchDTO;
+import org.example.cargotracking.entity.Company;
 import org.example.cargotracking.entity.IncomingLoad;
 import org.example.cargotracking.repository.IncomingLoadRepository;
 import org.example.cargotracking.service.IncomingLoadService;
-import org.springframework.stereotype.Service;
-
+import org.example.cargotracking.service.SecurityService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class IncomingLoadServiceImpl implements IncomingLoadService {
+@RequiredArgsConstructor
+public class IncomingLoadServiceImpl
+        implements IncomingLoadService {
 
     private final IncomingLoadRepository incomingLoadRepository;
-
-    public IncomingLoadServiceImpl(IncomingLoadRepository incomingLoadRepository) {
-        this.incomingLoadRepository = incomingLoadRepository;
-    }
+    private final SecurityService securityService;
 
     @Override
     public List<IncomingLoad> findAll() {
 
-        return incomingLoadRepository.findAll();
+        return incomingLoadRepository.findAllByCompany(
+                securityService.getCurrentCompany()
+        );
     }
 
     @Override
     public IncomingLoad findById(Long id) {
 
         return incomingLoadRepository
-                .findById(id)
+                .findByIdAndCompany(
+                        id,
+                        securityService.getCurrentCompany()
+                )
                 .orElseThrow(() ->
 
                         new RuntimeException(
@@ -43,9 +48,19 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
     }
 
     @Override
-    public void save(
-            IncomingLoad incomingLoad
-    ) {
+    public void save(IncomingLoad incomingLoad) {
+
+        Company company =
+                securityService.getCurrentCompany();
+
+        // CREATE
+
+        if (incomingLoad.getId() == null) {
+
+            incomingLoad.setCompany(
+                    company
+            );
+        }
 
         if (incomingLoad.getCreatedAt() == null) {
 
@@ -56,11 +71,13 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
 
         boolean exists =
                 incomingLoadRepository
-                        .existsByInvoiceNumberAndSupplierCompany(
+                        .existsByInvoiceNumberAndSupplierCompanyAndCompany(
 
                                 incomingLoad.getInvoiceNumber(),
 
-                                incomingLoad.getSupplierCompany()
+                                incomingLoad.getSupplierCompany(),
+
+                                company
                         );
 
         if (exists && incomingLoad.getId() == null) {
@@ -70,13 +87,20 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
             );
         }
 
-        incomingLoadRepository.save(incomingLoad);
+        incomingLoadRepository.save(
+                incomingLoad
+        );
     }
 
     @Override
     public void delete(Long id) {
 
-        incomingLoadRepository.deleteById(id);
+        IncomingLoad incomingLoad =
+                findById(id);
+
+        incomingLoadRepository.delete(
+                incomingLoad
+        );
     }
 
     @Override
@@ -89,7 +113,9 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
     ) {
 
         List<IncomingLoad> loads =
-                incomingLoadRepository.findAll();
+                incomingLoadRepository.findAllByCompany(
+                        securityService.getCurrentCompany()
+                );
 
         List<IncomingLoad> filtered =
                 loads.stream()
@@ -184,7 +210,9 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
     public long countSuppliers() {
 
         return incomingLoadRepository
-                .findAll()
+                .findAllByCompany(
+                        securityService.getCurrentCompany()
+                )
                 .stream()
                 .map(load ->
                         load.getSupplierCompany()
@@ -197,7 +225,9 @@ public class IncomingLoadServiceImpl implements IncomingLoadService {
     public long countInvoices() {
 
         return incomingLoadRepository
-                .findAll()
+                .findAllByCompany(
+                        securityService.getCurrentCompany()
+                )
                 .stream()
                 .map(load ->
                         load.getInvoiceNumber()

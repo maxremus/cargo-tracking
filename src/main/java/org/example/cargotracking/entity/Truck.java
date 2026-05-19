@@ -31,4 +31,8 @@ public class Truck {
 
     @Size(max = 150, message = "Името на фирмата е твърде дълго")
     private String companyName;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 }

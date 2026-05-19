@@ -1,6 +1,7 @@
 package org.example.cargotracking.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.cargotracking.entity.User;
@@ -22,285 +23,163 @@ public class UserController {
     private final UserService userService;
     private final SystemLogService systemLogService;
 
+    /**
+     * Показва списък с всички потребители
+     */
     @GetMapping
-    public String users(
-            Model model,
-            HttpServletRequest request
-    ) {
-
-        model.addAttribute(
-                "users",
-                userService.findAll()
-        );
-
+    public String users(Model model, HttpServletRequest request) {
+        model.addAttribute("users", userService.findAll());
         return "users";
     }
 
+    /**
+     * Показва форма за създаване на нов потребител
+     */
     @GetMapping("/create")
-    public String createUser(
-            Model model,
-            HttpServletRequest request
-    ) {
-
+    public String createUser(Model model, HttpServletRequest request) {
         User user = new User();
-
         user.setEnabled(true);
 
-        model.addAttribute(
-                "user",
-                user
-        );
-
-        model.addAttribute(
-                "roles",
-                UserRole.values()
-        );
+        model.addAttribute("user", user);
+        model.addAttribute("roles", UserRole.values());
 
         return "create-user";
     }
 
+    /**
+     * Показва форма за редакция на съществуващ потребител
+     */
     @GetMapping("/edit/{id}")
-    public String editUser(
-            @PathVariable Long id,
-            Model model,
-            HttpServletRequest request
-    ) {
+    public String editUser(@PathVariable Long id, Model model, HttpServletRequest request) {
+        User user = userService.findById(id);
 
-        User user =
-                userService.findById(id);
-
-        model.addAttribute(
-                "user",
-                user
-        );
-
-        model.addAttribute(
-                "roles",
-                UserRole.values()
-        );
+        model.addAttribute("user", user);
+        model.addAttribute("roles", UserRole.values());
 
         return "edit-user";
     }
 
+    /**
+     * Запазва нов потребител
+     */
     @PostMapping("/save")
     public String saveUser(
-
-            @Valid
-            @ModelAttribute("user")
-            User user,
-
+            @Valid @ModelAttribute("user") User user,
             BindingResult bindingResult,
-
             Model model,
-
             HttpServletRequest request
-
     ) {
-
-        // PASSWORD VALIDATION
-
-        if (user.getId() == null &&
-                (user.getPassword() == null
-                        || user.getPassword().length() < 6)) {
-
-            bindingResult.rejectValue(
-                    "password",
-                    "error.user",
-                    "Минимум 6 символа"
-            );
+        // Валидация на парола за нов потребител
+        if (user.getId() == null && (user.getPassword() == null || user.getPassword().length() < 6)) {
+            bindingResult.rejectValue("password", "error.user", "Минимум 6 символа");
         }
 
-        // VALIDATION ERRORS
-
+        // Ако има грешки от валидацията
         if (bindingResult.hasErrors()) {
-
-            model.addAttribute(
-                    "roles",
-                    UserRole.values()
-            );
-
+            model.addAttribute("roles", UserRole.values());
             return "create-user";
         }
 
-        Authentication auth =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         try {
-
             userService.save(user);
-
         } catch (RuntimeException e) {
-
-            model.addAttribute(
-                    "roles",
-                    UserRole.values()
-            );
-
-            model.addAttribute(
-                    "errorMessage",
-                    e.getMessage()
-            );
-
+            model.addAttribute("roles", UserRole.values());
+            model.addAttribute("errorMessage", e.getMessage());
             return "create-user";
         }
 
+        // Логване на действието
         systemLogService.log(
-
                 auth.getName(),
-
                 "CREATE_USER",
-
-                "Добавен потребител: "
-                        + user.getUsername(),
-
+                "Добавен потребител: " + user.getUsername(),
                 request.getRemoteAddr()
         );
 
         return "redirect:/users";
     }
 
+    /**
+     * Обновява съществуващ потребител
+     */
     @PostMapping("/update")
     public String updateUser(
-
-            @Valid
-            @ModelAttribute("user")
-            User user,
-
+            @Valid @ModelAttribute("user") User user,
             BindingResult bindingResult,
-
             Model model,
-
             HttpServletRequest request
-
     ) {
-
         if (bindingResult.hasErrors()) {
-
-            model.addAttribute(
-                    "roles",
-                    UserRole.values()
-            );
-
+            model.addAttribute("roles", UserRole.values());
             return "edit-user";
         }
 
-        Authentication auth =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         try {
-
             userService.save(user);
-
         } catch (RuntimeException e) {
-
-            model.addAttribute(
-                    "roles",
-                    UserRole.values()
-            );
-
-            model.addAttribute(
-                    "errorMessage",
-                    e.getMessage()
-            );
-
+            model.addAttribute("roles", UserRole.values());
+            model.addAttribute("errorMessage", e.getMessage());
             return "edit-user";
         }
 
+        // Логване на действието
         systemLogService.log(
-
                 auth.getName(),
-
                 "UPDATE_USER",
-
-                "Редактиран потребител: "
-                        + user.getUsername(),
-
+                "Редактиран потребител: " + user.getUsername(),
                 request.getRemoteAddr()
         );
 
         return "redirect:/users";
     }
 
+    /**
+     * Изтрива (soft delete) потребител
+     */
     @PostMapping("/delete/{id}")
-    public String deleteUser(
+    public String deleteUser(@PathVariable Long id, HttpServletRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+        User user = userService.findById(id);
 
-            @PathVariable Long id,
-
-            HttpServletRequest request
-
-    ) {
-
-        Authentication auth =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
-
-        String currentUsername =
-                auth.getName();
-
-        User user =
-                userService.findById(id);
-
+        // Забрана за самоизтриване
         if (user.getUsername().equals(currentUsername)) {
-
             return "redirect:/users?error=selfdelete";
         }
 
         userService.delete(id);
 
+        // Логване на действието
         systemLogService.log(
-
                 currentUsername,
-
                 "DELETE_USER",
-
-                "Изтрит потребител: "
-                        + user.getUsername(),
-
+                "Изтрит потребител: " + user.getUsername(),
                 request.getRemoteAddr()
         );
 
         return "redirect:/users";
     }
 
+    /**
+     * Променя статуса на потребител (активен/неактивен)
+     */
     @PostMapping("/toggle-status/{id}")
-    public String toggleStatus(
-
-            @PathVariable Long id,
-
-            HttpServletRequest request
-
-    ) {
-
-        Authentication auth =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
-
-        User user =
-                userService.findById(id);
+    public String toggleStatus(@PathVariable Long id, HttpServletRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findById(id);
 
         user.setEnabled(!user.isEnabled());
-
         userService.save(user);
 
+        // Логване на действието
         systemLogService.log(
-
                 auth.getName(),
-
                 "CHANGE_USER_STATUS",
-
-                "Променен статус на потребител: "
-                        + user.getUsername()
-                        + " -> "
-                        + (user.isEnabled()
-                        ? "АКТИВЕН"
-                        : "ИЗКЛЮЧЕН"),
-
+                "Променен статус на потребител: " + user.getUsername() + " -> " + (user.isEnabled() ? "АКТИВЕН" : "ИЗКЛЮЧЕН"),
                 request.getRemoteAddr()
         );
 

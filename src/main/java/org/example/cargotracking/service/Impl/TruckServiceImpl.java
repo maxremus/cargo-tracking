@@ -3,6 +3,7 @@ package org.example.cargotracking.service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.example.cargotracking.entity.Truck;
 import org.example.cargotracking.repository.TruckRepository;
+import org.example.cargotracking.service.SecurityService;
 import org.example.cargotracking.service.TruckService;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +11,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TruckServiceImpl implements TruckService {
+public class TruckServiceImpl
+        implements TruckService {
 
     private final TruckRepository truckRepository;
+    private final SecurityService securityService;
 
     @Override
     public Truck save(Truck truck) {
@@ -21,16 +24,13 @@ public class TruckServiceImpl implements TruckService {
 
         if (truck.getId() == null) {
 
-            boolean exists = truckRepository
-                    .findAll()
-                    .stream()
-                    .anyMatch(t ->
-
-                            t.getTruckNumber()
-                                    .equalsIgnoreCase(
-                                            truck.getTruckNumber()
-                                    )
-                    );
+            boolean exists =
+                    truckRepository
+                            .findByTruckNumberAndCompany(
+                                    truck.getTruckNumber(),
+                                    securityService.getCurrentCompany()
+                            )
+                            .isPresent();
 
             if (exists) {
 
@@ -39,20 +39,29 @@ public class TruckServiceImpl implements TruckService {
                 );
             }
 
+            // SET COMPANY
+
+            truck.setCompany(
+                    securityService.getCurrentCompany()
+            );
+
             return truckRepository.save(truck);
         }
 
         // UPDATE
 
         Truck existingTruck =
-                truckRepository.findById(
-                        truck.getId()
-                ).orElseThrow(() ->
-
-                        new RuntimeException(
-                                "Truck not found"
+                truckRepository
+                        .findByIdAndCompany(
+                                truck.getId(),
+                                securityService.getCurrentCompany()
                         )
-                );
+                        .orElseThrow(() ->
+
+                                new RuntimeException(
+                                        "Truck not found"
+                                )
+                        );
 
         existingTruck.setTruckNumber(
                 truck.getTruckNumber()
@@ -78,14 +87,19 @@ public class TruckServiceImpl implements TruckService {
     @Override
     public List<Truck> findAll() {
 
-        return truckRepository.findAll();
+        return truckRepository.findAllByCompany(
+                securityService.getCurrentCompany()
+        );
     }
 
     @Override
     public Truck findById(Long id) {
 
-        return truckRepository.findById(id)
-
+        return truckRepository
+                .findByIdAndCompany(
+                        id,
+                        securityService.getCurrentCompany()
+                )
                 .orElseThrow(() ->
 
                         new RuntimeException(
@@ -98,8 +112,11 @@ public class TruckServiceImpl implements TruckService {
     public void delete(Long id) {
 
         Truck truck =
-                truckRepository.findById(id)
-
+                truckRepository
+                        .findByIdAndCompany(
+                                id,
+                                securityService.getCurrentCompany()
+                        )
                         .orElseThrow(() ->
 
                                 new RuntimeException(

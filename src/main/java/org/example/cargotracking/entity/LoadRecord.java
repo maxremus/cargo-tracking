@@ -19,6 +19,10 @@ public class LoadRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
+
     @NotBlank(message = "Продуктът е задължителен")
     @Size(min = 2, max = 100, message = "Продуктът трябва да е между 2 и 100 символа")
     @Column(nullable = false)

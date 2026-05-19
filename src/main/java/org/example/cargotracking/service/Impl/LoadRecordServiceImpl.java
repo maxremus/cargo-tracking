@@ -6,6 +6,7 @@ import org.example.cargotracking.entity.LoadRecord;
 import org.example.cargotracking.entity.LoadStatus;
 import org.example.cargotracking.repository.LoadRecordRepository;
 import org.example.cargotracking.service.LoadRecordService;
+import org.example.cargotracking.service.SecurityService;
 import org.example.cargotracking.webConfig.LoadSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,34 +27,46 @@ public class LoadRecordServiceImpl
         implements LoadRecordService {
 
     private final LoadRecordRepository loadRecordRepository;
+    private final SecurityService securityService;
 
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE =
+            10 * 1024 * 1024;
 
-    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
-                    "image/jpeg",
-                    "image/png",
-                    "image/webp"
-            );
+    private static final Set<String>
+            ALLOWED_IMAGE_TYPES = Set.of(
 
-    private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of(
-                    "application/pdf",
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+    );
 
-                    "application/msword",
+    private static final Set<String>
+            ALLOWED_DOCUMENT_TYPES = Set.of(
 
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            );
+            "application/pdf",
+
+            "application/msword",
+
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
 
     @Override
     public List<LoadRecord> findAll() {
 
-        return loadRecordRepository.findAll();
+        return loadRecordRepository
+                .findAllByCompany(
+                        securityService.getCurrentCompany()
+                );
     }
 
     @Override
     public LoadRecord findById(Long id) {
 
         return loadRecordRepository
-                .findById(id)
+                .findByIdAndCompany(
+                        id,
+                        securityService.getCurrentCompany()
+                )
                 .orElseThrow(() ->
 
                         new RuntimeException(
@@ -82,6 +95,10 @@ public class LoadRecordServiceImpl
 
             loadRecord.setCreatedBy(
                     existing.getCreatedBy()
+            );
+
+            loadRecord.setCompany(
+                    existing.getCompany()
             );
 
             // KEEP OLD DATE IF NULL
@@ -119,6 +136,15 @@ public class LoadRecordServiceImpl
                         existing.getDocumentPath()
                 );
             }
+        }
+
+        // CREATE
+
+        else {
+
+            loadRecord.setCompany(
+                    securityService.getCurrentCompany()
+            );
         }
 
         // IMAGE VALIDATION
@@ -276,7 +302,10 @@ public class LoadRecordServiceImpl
         return loadRecordRepository.findAll(
 
                 LoadSpecification
-                        .filterLoads(search),
+                        .filterLoads(
+                                search,
+                                securityService.getCurrentCompany()
+                        ),
 
                 pageable
         );
@@ -285,7 +314,10 @@ public class LoadRecordServiceImpl
     @Override
     public void delete(Long id) {
 
-        loadRecordRepository.deleteById(id);
+        LoadRecord load =
+                findById(id);
+
+        loadRecordRepository.delete(load);
     }
 
     @Override
@@ -294,13 +326,9 @@ public class LoadRecordServiceImpl
     ) {
 
         return loadRecordRepository
-                .findAll()
-                .stream()
-                .filter(load ->
-
-                        load.getStatus()
-                                == status
-                )
-                .toList();
+                .findByStatusAndCompany(
+                        status,
+                        securityService.getCurrentCompany()
+                );
     }
 }

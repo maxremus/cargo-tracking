@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -19,6 +20,10 @@ public class IncomingLoad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 
     @NotBlank(message = "Фирмата е задължителна")
     @Size(
@@ -64,8 +69,8 @@ public class IncomingLoad {
             value = "0.01",
             message = "Сумата трябва да е по-голяма от 0"
     )
-    @Column(nullable = false)
-    private Double totalPrice;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPrice;
 
     @Size(
             max = 2000,
