@@ -142,8 +142,8 @@ Default Login:
 Database:
   Name: transport_db
   Host: localhost:3306
-  User: root
-  Password: Max871225max!@
+  User:
+  Password:
 
 Main Features:
   ✓ User management (ADMIN, WORKER roles)
